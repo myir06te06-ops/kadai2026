@@ -4,12 +4,13 @@ import os
 from datetime import datetime, date
 
 # CSV 保存先（Streamlit Cloud 永続フォルダ）
-FILE_NAME = "/mnt/data/log.csv"
+DATA_DIR = "/mnt/data"
+FILE_NAME = os.path.join(DATA_DIR, "log.csv")
 
-# フォルダがなければ作る（これ必須）
-os.makedirs("/mnt/data", exist_ok=True)
+# フォルダがなければ作る（これが必須）
+os.makedirs(DATA_DIR, exist_ok=True)
 
-# CSV読み込み
+# CSV 読み込み
 def load_logs():
     if not os.path.exists(FILE_NAME):
         return []
@@ -26,6 +27,9 @@ def already_input(device_name):
 
 # 保存
 def save_log(device_name, status):
+    # フォルダが無い場合に再確認
+    os.makedirs(DATA_DIR, exist_ok=True)
+
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     rows = load_logs()
     new_rows = []
@@ -38,7 +42,6 @@ def save_log(device_name, status):
             new_rows.append(r)
     if not found:
         new_rows.append([date.today().strftime("%Y-%m-%d"), device_name, status, now])
-    # CSV 書き込み
     with open(FILE_NAME, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerows(new_rows)
@@ -53,15 +56,12 @@ if device_name:
         st.warning(f"{device_name} は今日はすでに入力済みです。")
     else:
         col1, col2, col3 = st.columns(3)
-
         if col1.button("元気"):
             save_log(device_name, "元気")
             st.success(f"{device_name} の記録「元気」を保存しました")
-
         if col2.button("普通"):
             save_log(device_name, "普通")
             st.success(f"{device_name} の記録「普通」を保存しました")
-
         if col3.button("不調"):
             save_log(device_name, "不調")
             st.success(f"{device_name} の記録「不調」を保存しました")
