@@ -3,14 +3,11 @@ import csv
 import os
 from datetime import datetime, date
 
-# CSV 保存先（Streamlit Cloud 用）
-FILE_NAME = "/mnt/data/log.csv"
-# CSV 保存先
+# CSV 保存先（Streamlit Cloud 永続フォルダ）
 FILE_NAME = "/mnt/data/log.csv"
 
-# フォルダがなければ作る
+# フォルダがなければ作る（ここが重要）
 os.makedirs(os.path.dirname(FILE_NAME), exist_ok=True)
-
 
 # CSV読み込み
 def load_logs():
@@ -30,9 +27,7 @@ def already_input(device_name):
 # 保存
 def save_log(device_name, status):
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
-    # 既存データ読み込み
     rows = load_logs()
-    # 同じ日・同じ端末の行は置き換え
     new_rows = []
     found = False
     for r in rows:
@@ -43,7 +38,6 @@ def save_log(device_name, status):
             new_rows.append(r)
     if not found:
         new_rows.append([date.today().strftime("%Y-%m-%d"), device_name, status, now])
-    # CSVに保存
     with open(FILE_NAME, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerows(new_rows)
