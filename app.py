@@ -6,8 +6,8 @@ from datetime import datetime, date
 # CSV 保存先（Streamlit Cloud 永続フォルダ）
 FILE_NAME = "/mnt/data/log.csv"
 
-# フォルダがなければ作る（ここが重要）
-os.makedirs(os.path.dirname(FILE_NAME), exist_ok=True)
+# フォルダがなければ作る（これ必須）
+os.makedirs("/mnt/data", exist_ok=True)
 
 # CSV読み込み
 def load_logs():
@@ -38,11 +38,12 @@ def save_log(device_name, status):
             new_rows.append(r)
     if not found:
         new_rows.append([date.today().strftime("%Y-%m-%d"), device_name, status, now])
+    # CSV 書き込み
     with open(FILE_NAME, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerows(new_rows)
 
-# Streamlit画面
+# Streamlit 画面
 st.title("生活見守りアプリ（複数端末対応）")
 
 device_name = st.text_input("端末名（または名前）を入力してください")
@@ -65,7 +66,7 @@ if device_name:
             save_log(device_name, "不調")
             st.success(f"{device_name} の記録「不調」を保存しました")
 
-# 今日の入力一覧を確認（任意）
+# 今日の全端末の入力を確認
 if st.checkbox("今日の全端末の入力を確認する"):
     today_str = date.today().strftime("%Y-%m-%d")
     logs = [r for r in load_logs() if r[0] == today_str]
@@ -73,4 +74,3 @@ if st.checkbox("今日の全端末の入力を確認する"):
         st.table(logs)
     else:
         st.info("今日の入力はまだありません")
-
