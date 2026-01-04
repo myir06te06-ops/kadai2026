@@ -5,6 +5,12 @@ from datetime import datetime, date
 
 # CSV 保存先（Streamlit Cloud 用）
 FILE_NAME = "/mnt/data/log.csv"
+# CSV 保存先
+FILE_NAME = "/mnt/data/log.csv"
+
+# フォルダがなければ作る
+os.makedirs(os.path.dirname(FILE_NAME), exist_ok=True)
+
 
 # CSV読み込み
 def load_logs():
@@ -73,3 +79,4 @@ if st.checkbox("今日の全端末の入力を確認する"):
         st.table(logs)
     else:
         st.info("今日の入力はまだありません")
+
